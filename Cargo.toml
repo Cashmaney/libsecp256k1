@@ -12,7 +12,8 @@ resolver = "2"
 [dependencies]
 libsecp256k1-core = { version = "0.3.0", path = "core", default-features = false }
 arrayref = "0.3"
-rand = { version = "0.8", default-features = false }
+rand_core = { version = "0.6.4", default-features = false, optional = true }
+rand = { version = "0.8.5", default-features = false, optional = true }
 digest = "0.9"
 base64 = { version = "0.13", default-features = false }
 hmac-drbg = { version = "0.3", optional = true }
@@ -35,10 +36,11 @@ libsecp256k1-gen-genmult = { version = "0.3.0", path = "gen/genmult" }
 
 [features]
 default = ["std", "hmac", "static-context"]
-std = ["libsecp256k1-core/std", "sha2/std", "rand/std", "serde/std", "base64/std"]
+std = ["libsecp256k1-core/std", "sha2/std", "rand", "rand/std", "serde/std", "base64/std"]
 hmac = ["hmac-drbg", "sha2", "typenum"]
 static-context = []
 lazy-static-context = ["static-context", "lazy_static", "std"]
+wasm = ["rand_core"]
 
 [workspace]
 members = [

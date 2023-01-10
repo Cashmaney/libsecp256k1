@@ -14,11 +14,19 @@
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
 
+#[cfg(all(feature = "std", feature = "wasm"))]
+compile_error!("Cannot enable both std and wasm");
+
 pub use libsecp256k1_core::*;
 
 use arrayref::{array_mut_ref, array_ref};
 use core::convert::TryFrom;
 use digest::{generic_array::GenericArray, Digest};
+
+#[cfg(feature = "wasm")]
+use rand_core::{RngCore, CryptoRng};
+
+#[cfg(feature = "std")]
 use rand::Rng;
 
 #[cfg(feature = "std")]
@@ -427,6 +435,19 @@ impl SecretKey {
         Self::parse(&a)
     }
 
+    #[cfg(feature = "wasm")]
+    pub fn random<R: RngCore + CryptoRng>(rng: &mut R) -> SecretKey {
+        loop {
+            let mut ret = [0u8; util::SECRET_KEY_SIZE];
+            rng.fill_bytes(&mut ret);
+
+            if let Ok(key) = Self::parse(&ret) {
+                return key;
+            }
+        }
+    }
+
+    #[cfg(feature = "std")]
     pub fn random<R: Rng>(rng: &mut R) -> SecretKey {
         loop {
             let mut ret = [0u8; util::SECRET_KEY_SIZE];
